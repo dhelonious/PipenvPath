@@ -9,6 +9,18 @@ PIPENV = "pipenv"
 def console_print(msg):
     print("PipenvPath: {}".format(msg))
 
+def add_to_path(PATH, path):
+    if PLATFORM == "windows":
+        PATH = ";".join((path+"\\Scripts", PATH))
+    else:
+        PATH = ":".join((path+"/bin", PATH))
+
+def remove_from_path(PATH, path):
+    if PLATFORM == "windows":
+        PATH.replace(path+";", "")
+    else:
+        PATH.replace(path+":", "")
+
 def plugin_loaded():
     settings = sublime.load_settings("Preferences.sublime-settings")
     global PIPENV
@@ -22,6 +34,7 @@ class ProjectEnvironmentListener(sublime_plugin.EventListener):
         super(ProjectEnvironmentListener, self).__init__(*args, **kwds)
 
         self.active_project = None
+        self.active_venv = None
 
     def on_activated(self, view):
         if int(sublime.version()) < 3000:
@@ -61,9 +74,8 @@ class ProjectEnvironmentListener(sublime_plugin.EventListener):
             return
 
         console_print("venv found at {}".format(venv_path))
-        if PLATFORM == "windows":
-            PATH = ";".join((venv_path+"\\Scripts", PATH))
-        else:
-            PATH = ":".join((venv_path+"/bin", PATH))
-
+        if self.active_venv:
+            remove_from_path(PATH, self.active_venv)
+        self.active_venv = venv_path
+        add_to_path(PATH, venv_path)
         os.environ["PATH"] = PATH
