@@ -37,9 +37,6 @@ class ProjectEnvironmentListener(sublime_plugin.EventListener):
         self.active_venv = None
 
     def on_activated(self, view):
-        if int(sublime.version()) < 3000:
-            return
-
         if self.active_project == sublime.active_window().project_file_name():
             return
         else:
