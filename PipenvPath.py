@@ -69,7 +69,7 @@ class ProjectEnvironmentListener(sublime_plugin.EventListener):
         if self.active_venv:
             if venv_path != self.active_venv:
                 PATH = remove_from_path(PATH, self.active_venv)
-            else:
+            elif venv_path in PATH:
                 return
 
         console_print("venv found at {}".format(venv_path))
